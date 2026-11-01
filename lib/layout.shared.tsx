@@ -4,6 +4,7 @@ import { appName, productRepo, websiteUrl } from './shared';
 export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
+      url: '/docs',
       title: (
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}

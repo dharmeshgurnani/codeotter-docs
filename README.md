@@ -44,7 +44,7 @@ npm run build && npm run deploy
 | Path | Purpose |
 | --- | --- |
 | `content/docs` | Documentation pages (MDX) |
-| `app/(home)` | Landing page |
+| `app/page.tsx`, `public/_redirects` | `/` redirects to `/docs` |
 | `app/docs` | Docs layout and page renderer |
 | `app/api/search/route.ts` | Static Orama search index |
 | `app/llms.txt`, `app/llms-full.txt`, `app/llms.mdx` | Markdown versions of the docs for LLMs |
