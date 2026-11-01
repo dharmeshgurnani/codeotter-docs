@@ -3,34 +3,35 @@ title: BYOK provider config
 description: Connect Claude, OpenAI, MiniMax or OpenRouter to CodeOtter with your own key, or any OpenAI-compatible endpoint, and pair System 1 with System 2.
 ---
 
-Plug your own Claude, OpenAI, MiniMax or OpenRouter key into CodeOtter. The four BYOK providers plus an OpenAI-compatible endpoint cover every model your team needs, without sending code through a third-party SaaS account.
+Plug your own Claude, OpenAI, MiniMax or OpenRouter key into CodeOtter. CodeOtter is self-hosted, so your code goes to the provider you choose and not through a CodeOtter cloud.
 
 <Callout title="TL;DR">
-  Open **Settings → System → Model provider**, choose Claude, OpenAI, MiniMax or OpenRouter, paste your key, and click
-  **Test**. CodeOtter sends a one-token ping before saving. Keys are stored encrypted in PocketBase and never leave
-  your installation.
+  Open **Settings → System → Model provider**, choose from Claude, OpenAI, MiniMax, or OpenRouter, paste your key, save it, then click **Test**.
+  **Test** sends one short prompt to the provider with the saved key and reports whether the model answered.
+  CodeOtter saves the key in its settings and shows it masked in the UI; it is used to call the provider you configured.
+  CodeOtter does not add its own encryption at rest, so protect the data volume as you would any credential store.
 </Callout>
 
 ## Why bring your own key
 
 CodeOtter is self-hosted, so every provider it talks to is a connection your team controls. The model vendor bills your organization directly, usage appears on your own dashboard, and your code never routes through a shared third-party account.
 
-CodeOtter runs a [dual engine](/docs/dual-engine): a language model (System 2) that writes the review, and a deterministic rubric engine (System 1, `POST /v1/systemone`) that returns the six 0–100 gauges and the nine merge gates. Either can be hosted or local, per repository.
+CodeOtter runs a [dual engine](/docs/dual-engine): a language model (System 2) that writes the review, and a deterministic rubric engine (System 1, `POST /v1/systemone`) that returns the six 0–100 gauges and the nine merge gates. Either can be hosted or local, and you choose each engine once for the whole installation.
 
 ## The four providers
 
-**Settings → System → Model provider** has one row per provider. Pick the row, paste the key, save:
+**Settings → System → Model provider** has one row per engine. Open the settings of the Language model row, pick the provider (Anthropic for Claude), paste the key and save:
 
-- **Claude**: Claude Opus or Sonnet via `ANTHROPIC_API_KEY`. The strongest prose for System 2 walkthroughs.
+- **Claude**: Claude Opus or Sonnet via `ANTHROPIC_API_KEY`.
 - **OpenAI**: GPT-class models via `OPENAI_API_KEY`. Any OpenAI model id is passed through unchanged.
-- **MiniMax**: MiniMax-M3 through the MiniMax API, with a key issued by MiniMax.
+- **MiniMax**: MiniMax-M3 or MiniMax-M2.5 through the MiniMax API, using the key issued by MiniMax (`MINIMAX_API_KEY`).
 - **OpenRouter**: one `OPENROUTER_API_KEY` for every model OpenRouter routes to, including Claude, OpenAI and MiniMax, on one bill. Use it to switch System 2 providers without re-entering credentials.
 
-A green dot appears once a one-token reply comes back to your installation.
+Paste the key and save it; the **Language model** row shows **Key saved**. Click **Test** to send one short prompt and see whether the model answers.
 
 ## OpenAI-compatible endpoint
 
-Providers with an OpenAI-shaped `/chat/completions` endpoint work without a CodeOtter release. Pick **OpenAI-compatible** and fill in the base URL, model id and key:
+Providers with an OpenAI-shaped `/chat/completions` endpoint work without a CodeOtter release. Pick **Custom OpenAI-compatible** and fill in the base URL, model id and key:
 
 ```txt
 Base URL:  https://your.provider.example.com/v1
@@ -38,16 +39,16 @@ Model id:  your-model-name
 API key:   sk-...
 ```
 
-Use this for self-hosted Ollama, vLLM, LiteLLM proxies, internal AI gateways, or any service that returns OpenAI-shaped JSON. Microsoft CodeReviewer is also reachable this way when you want diff-hunk comments alongside your System 1 model.
+Use this for self-hosted Ollama, vLLM, LiteLLM proxies, internal AI gateways, or any service that returns OpenAI-shaped JSON. Microsoft CodeReviewer is a separate, local option: download it under **Settings → System → Local models**. It writes diff-hunk review comments only, so pair it with a System 1 model for the scores and gates.
 
 ## Pairing System 1 and System 2
 
-Each repository picks its two engines independently:
+CodeOtter runs two engines, and you pick each one independently:
 
 - **System 2** is the BYOK provider above. It writes the review, walkthrough, findings and inline committable `suggestion` blocks.
-- **System 1** is the rubric engine. By default CodeOtter uses a local Laya Typed-Decisions model; you can also point it at any OpenAI-compatible endpoint (for example Kev 4B for high-confidence calibration).
+- **System 1** is the rubric engine. Run it locally with a model you download under **Settings → System → Local models** (Laya typed-decisions, Kev 0.8B, or Kev 4B, the most accurate and best with a GPU), or point it at TypeSafe Jev, Cloudflare Clef through OpenRouter, or a custom System One endpoint that speaks the typed System One contract.
 
-A common setup is Claude for System 2 with a local Laya sidecar for System 1. A pure-hosted setup pairs OpenAI for both, with no local dependencies.
+A common setup is Claude for System 2 prose plus a local Laya sidecar for System 1 scoring: System 1 runs on your machine, and System 2 sends the diff and its surrounding context to Anthropic.
 
 ## Where keys live
 
@@ -55,4 +56,4 @@ Keys are stored in the `pb_data` volume next to PocketBase auth. Keys set in `.e
 
 ## Verifying it works
 
-Open any onboarded repository and click **Run review**. The status panel shows *System 1 → provider/model* and *System 2 → provider/model*, with gauges and gates once the review completes. If System 2 returns a `401` or `429`, the provider error is shown verbatim and the System 1 output still scores the merge gates.
+Open any onboarded repository and click **Run review**. The status panel shows *System 1 → provider/model* and *System 2 → provider/model*, with gauges and gates once the review completes. If System 2 returns an error such as a `401` or `429`, the review page shows the provider's error message instead of the review. There is no fallback to System 1 alone, so fix the key or wait out the rate limit, then reload the review.
