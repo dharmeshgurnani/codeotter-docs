@@ -1,47 +1,53 @@
-# codeotter-docs
+# CodeOtter Docs
 
-This is a Next.js application generated with
-[Create Fumadocs](https://github.com/fuma-nama/fumadocs).
+Source for [docs.codeotter.io](https://docs.codeotter.io), the documentation for
+[CodeOtter](https://github.com/dharmeshgurnani/CodeOtter), the self-hosted AI pull request reviewer.
 
-It is a Next.js app with [Static Export](https://nextjs.org/docs/app/guides/static-exports) configured.
+Built with [Fumadocs](https://fumadocs.dev) (Next.js, Fumadocs MDX) as a
+[static export](https://nextjs.org/docs/app/guides/static-exports), served from Cloudflare Workers static assets.
 
-Run development server:
+## Writing docs
+
+Pages are MDX files in [`content/docs`](content/docs). Sidebar order and section headings are in
+[`content/docs/meta.json`](content/docs/meta.json). Images go in `public/images`.
 
 ```bash
-npm run dev
-# or
-pnpm dev
-# or
-yarn dev
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-Open http://localhost:3000 with your browser to see the result.
+Every page has an **Edit on GitHub** link, and pull requests are welcome. Keep the existing slugs stable:
+`codeotter.io/docs/*` redirects here by slug.
 
-## Explore
+## Checks
 
-In the project, you can see:
+```bash
+npm run lint
+npm run types:check
+npm run build      # writes the static site to out/
+```
 
-- `lib/source.ts`: Code for content source adapter, [`loader()`](https://fumadocs.dev/docs/headless/source-api) provides the interface to access your content.
-- `lib/layout.shared.tsx`: Shared options for layouts, optional but preferred to keep.
+CI runs all three on every pull request.
 
-| Route                     | Description                                            |
-| ------------------------- | ------------------------------------------------------ |
-| `app/(home)`              | The route group for your landing page and other pages. |
-| `app/docs`                | The documentation layout and pages.                    |
-| `app/api/search/route.ts` | The Route Handler for search.                          |
+## Deploy
 
-### Fumadocs MDX
+Pushes to `main` deploy through Cloudflare Workers Builds (build command `npm run build`, deploy command
+`npx wrangler deploy`). [`wrangler.jsonc`](wrangler.jsonc) uploads `out/` and binds the `docs.codeotter.io`
+custom domain. To deploy by hand:
 
-Collections are defined with the [Macro API](https://fumadocs.dev/docs/mdx/macro) in `lib/source.ts`.
+```bash
+npm run build && npm run deploy
+```
 
-Read the [Introduction](https://fumadocs.dev/docs/mdx) for further details.
+## Project layout
 
-## Learn More
-
-To learn more about Next.js and Fumadocs, take a look at the following
-resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js
-  features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [Fumadocs](https://fumadocs.dev) - learn about Fumadocs
+| Path | Purpose |
+| --- | --- |
+| `content/docs` | Documentation pages (MDX) |
+| `app/(home)` | Landing page |
+| `app/docs` | Docs layout and page renderer |
+| `app/api/search/route.ts` | Static Orama search index |
+| `app/llms.txt`, `app/llms-full.txt`, `app/llms.mdx` | Markdown versions of the docs for LLMs |
+| `app/og` | Generated Open Graph images |
+| `lib/shared.ts` | Site name, URLs and GitHub repositories |
+| `lib/layout.shared.tsx` | Navigation shared by all layouts |

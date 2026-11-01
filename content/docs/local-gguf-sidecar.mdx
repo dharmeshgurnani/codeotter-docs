@@ -1,0 +1,68 @@
+---
+title: Local GGUF & sidecar runtime
+description: Run CodeOtter with zero outbound network traffic using llama-server, ggmlc laya and the Microsoft CodeReviewer sidecar.
+---
+
+Review PRs without a single network packet leaving your machine, on an airplane or in an air-gapped data center. CodeOtter manages on-demand sidecar runtimes so System 2 prose, System 1 scoring and per-hunk comments all run locally.
+
+![CodeOtter offline vault](/images/offline-vault.jpg)
+
+<Callout title="TL;DR">
+  Open **Settings → System → Local models**, click a model to download it from Hugging Face, then pick it as your
+  System 1 or System 2 engine. CodeOtter starts the matching sidecar on the first review and stops it after fifteen
+  idle minutes.
+</Callout>
+
+## The three sidecar runtimes
+
+CodeOtter starts the sidecar that matches the model kind declared in `models.json`. None of them run unless a review needs them.
+
+- **`llama-server` (System 2 GGUF language model)**: the `llama.cpp` server for GGUF checkpoints over an OpenAI-shaped HTTP endpoint. Used for summaries, file walkthroughs and structured findings.
+- **`ggmlc laya` (System 1 typed decisions)**: speaks `POST /v1/systemone`, the same rubric endpoint as the hosted System 1 path. Requests are chunked to `maxQuestions: 8` and the diff is sized to `contextChars` for predictable latency. Returns the six gauges and nine gates without an LLM call.
+- **Microsoft CodeReviewer (System 2 hunk comments)**: a Python venv runtime (`runtimes/codereviewer/serve.py`) for per-hunk review comments. Each comment is checked by System One, and only those it judges, with at least 0.7 confidence, to name a concrete problem become findings.
+
+## Model catalog
+
+Every model in **Settings → System → Local models** is a Hugging Face repository. One click downloads the GGUF, its metadata and a verified-ready stamp into `PR_SCORER_DATA`.
+
+| Model | Engine role | Ideal for | Hugging Face |
+| :--- | :--- | :--- | :--- |
+| **Laya Typed-Decisions** | System 1 (scores & gates) | Instant rubric scoring and gate checks | [`mys/laya-typed-decisions-GGUF`](https://huggingface.co/mys/laya-typed-decisions-GGUF) |
+| **Kev 0.8B** | System 1 (scores & gates) | High-confidence decision calibration | [`mys/kev-0.8b-GGUF`](https://huggingface.co/mys/kev-0.8b-GGUF) |
+| **Kev 4B** | System 1 (scores & gates) | Most accurate local scoring, best with a GPU | [`mys/kev-4b-GGUF`](https://huggingface.co/mys/kev-4b-GGUF) |
+| **Qwen2.5-Coder 1.5B** | System 2 (prose & walkthrough) | Fast local walkthroughs on laptops | [`Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF`](https://huggingface.co/Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF) |
+| **Qwen2.5-Coder 7B** | System 2 (prose & walkthrough) | In-depth critiques and findings | [`Qwen/Qwen2.5-Coder-7B-Instruct-GGUF`](https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct-GGUF) |
+| **Microsoft CodeReviewer** | System 2 (hunk findings) | Diff-hunk comment generation | [`microsoft/codereviewer`](https://huggingface.co/microsoft/codereviewer) |
+
+Multi-shard checkpoints are checked together by `modelReady(m)` before any review is dispatched, so a partial download never reaches a review.
+
+## GPU detection and CPU fallback
+
+On Linux, macOS and Windows the local-models manager tries runtime archives in catalog order: the GPU build (CUDA, Metal or Vulkan) first, then the CPU build. No configuration is needed. Apple Silicon picks Metal, an NVIDIA workstation picks CUDA, and a CI runner without a GPU uses the CPU build. Linux arm64 tries Vulkan before CPU.
+
+## Air-gapped operation
+
+Once a model and its runtime archive are on disk, CodeOtter does not use the network unless you ask it to.
+
+<Steps>
+<Step>
+Download the model GGUF and the sidecar runtime archive on a build host with internet access.
+</Step>
+<Step>
+Copy them into `PR_SCORER_DATA/models/<id>/` using the exact filenames declared in `models.json` (one per `files[]` entry).
+</Step>
+<Step>
+CodeOtter's `modelReady(m)` reports the model ready once every shard is present and matches the catalog checksum.
+</Step>
+<Step>
+Set `CODEOTTER_UPDATE_CHECK=0` and either remove the Watchtower service from your Compose file or pull images through an internal registry mirror.
+</Step>
+<Step>
+Run the review. Nothing leaves the host.
+</Step>
+</Steps>
+
+## Resource management
+
+- **On-demand lifecycle**: runtimes start on the first review and stop after **15 idle minutes** to save memory and battery. A review requested while a sidecar is shutting down waits for the new boot instead of racing a half-loaded model.
+- **Context sizing**: diffs and questions are formatted to fit each model's context window. Small-context System One models read a digest of the whole change (every file with line counts, tests, areas, then the largest hunks).

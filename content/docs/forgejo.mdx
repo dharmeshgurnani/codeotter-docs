@@ -1,0 +1,57 @@
+---
+title: Forgejo
+description: Review Forgejo pull requests and sign in with Forgejo, alongside or instead of GitHub.
+---
+
+GitHub and one Forgejo server can coexist in the same installation. Sign-in and repository credentials are independent: GitHub-only teams, Forgejo-only teams, and teams that sign in with GitHub while reviewing Forgejo repositories are all supported.
+
+<Steps>
+<Step>
+
+### Connect the server
+
+Open **Settings → System → Git providers** and use the gear on the **Forgejo** row. Save the server origin (for example `https://forgejo.example.com`) and an access token, then select **Test**.
+
+- To review: a repository-scoped token with `read:repository` and `read:issue`.
+- To also publish review comments and suggestions: add `read:user`, `write:repository` and `write:issue`.
+
+The token account must have access to the repositories. Environment defaults are `FORGEJO_URL` and `FORGEJO_TOKEN`.
+
+</Step>
+<Step>
+
+### Enable Forgejo sign-in (optional)
+
+Select **Create app** on the Forgejo row (the access token needs the `write:user` scope), or create an OAuth2 application under your Forgejo **Settings → Applications**. Register the callback shown in CodeOtter's **Settings → System → Auth providers**, typically `https://codeotter.example.com/auth/callback`. Save its client ID and secret in the **Forgejo** section and enable it.
+
+Set `APP_URL` to CodeOtter's public address. GitHub OAuth can stay enabled or be disabled independently. PocketBase is required for sign-in.
+
+</Step>
+<Step>
+
+### Add repositories
+
+Add the full Forgejo repository URL in **Settings → Manage repositories**. Within a Forgejo organization, plain `owner/name` also selects Forgejo. Discovery uses the saved access token; OAuth login alone does not give the shared review service repository access. GitHub repository credentials still come from `gh` / `GH_TOKEN`.
+
+</Step>
+<Step>
+
+### Review
+
+Select the organization marked **Forgejo**, open a PR, and review it with the same models and controls as GitHub. Score and review comments and inline suggestions are posted by the configured token account.
+
+</Step>
+</Steps>
+
+## How it works
+
+- Existing GitHub repository IDs and review data are unchanged. Forgejo repository IDs use `forgejo~owner/name` internally, and API organization scopes use `?org=forgejo~owner`.
+- PR URLs keep the real Forgejo host and `/pulls/123` path. Repository settings and learned rules stay separate even when GitHub and Forgejo both have an `owner/name` with the same spelling.
+- OAuth uses PKCE and single-use, expiring server-side state. Accounts without a provider-verified email are identified by their OAuth provider and subject. Password sign-in and public password-based account creation are disabled.
+- Blank secrets keep saved values; disabling an OAuth provider removes its credentials without changing the other provider. Changing the Forgejo origin is blocked while repositories, reviews or OAuth configuration depend on it.
+
+## Limitations
+
+- Targets Forgejo 15. Server origins with subpaths are not supported.
+- Re-reviews use the full PR diff plus commit history; CodeOtter does not claim an incremental patch when the API does not supply one.
+- Outside-diff analysis (GitHub code search and local checkout) is not run against Forgejo repositories.

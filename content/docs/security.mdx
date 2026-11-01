@@ -1,0 +1,14 @@
+---
+title: Security & privacy
+description: How CodeOtter keeps code on your network, handles model output and protects credentials.
+---
+
+- **Zero telemetry, no middleman**: code diffs and metadata never leave your network unless you configure a hosted AI provider. No analytics and no phone-home calls. The release check can be turned off with `CODEOTTER_UPDATE_CHECK=0`.
+- **Validated outputs**: model responses are validated, normalised and sanitised before display. Answers posted to a PR have HTML comments removed (so they cannot forge CodeOtter's comment markers) and @mentions defused.
+- **Hardened access**: session security, strict cross-origin protections and masked credential management. OAuth uses PKCE with single-use, expiring server-side state, and password sign-in is disabled. See [Accounts and roles](/docs/accounts-and-roles).
+
+For fully offline operation, see [Air-gapped operation](/docs/local-gguf-sidecar#air-gapped-operation).
+
+## Reporting a vulnerability
+
+Report vulnerabilities privately through the [security policy](https://github.com/dharmeshgurnani/CodeOtter/security/policy). Please do not open public issues for security problems.

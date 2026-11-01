@@ -1,0 +1,58 @@
+---
+title: BYOK provider config
+description: Connect Claude, OpenAI, MiniMax or OpenRouter to CodeOtter with your own key, or any OpenAI-compatible endpoint, and pair System 1 with System 2.
+---
+
+Plug your own Claude, OpenAI, MiniMax or OpenRouter key into CodeOtter. The four BYOK providers plus an OpenAI-compatible endpoint cover every model your team needs, without sending code through a third-party SaaS account.
+
+<Callout title="TL;DR">
+  Open **Settings → System → Model provider**, choose Claude, OpenAI, MiniMax or OpenRouter, paste your key, and click
+  **Test**. CodeOtter sends a one-token ping before saving. Keys are stored encrypted in PocketBase and never leave
+  your installation.
+</Callout>
+
+## Why bring your own key
+
+CodeOtter is self-hosted, so every provider it talks to is a connection your team controls. The model vendor bills your organization directly, usage appears on your own dashboard, and your code never routes through a shared third-party account.
+
+CodeOtter runs a [dual engine](/docs/dual-engine): a language model (System 2) that writes the review, and a deterministic rubric engine (System 1, `POST /v1/systemone`) that returns the six 0–100 gauges and the nine merge gates. Either can be hosted or local, per repository.
+
+## The four providers
+
+**Settings → System → Model provider** has one row per provider. Pick the row, paste the key, save:
+
+- **Claude**: Claude Opus or Sonnet via `ANTHROPIC_API_KEY`. The strongest prose for System 2 walkthroughs.
+- **OpenAI**: GPT-class models via `OPENAI_API_KEY`. Any OpenAI model id is passed through unchanged.
+- **MiniMax**: MiniMax-M3 through the MiniMax API, with a key issued by MiniMax.
+- **OpenRouter**: one `OPENROUTER_API_KEY` for every model OpenRouter routes to, including Claude, OpenAI and MiniMax, on one bill. Use it to switch System 2 providers without re-entering credentials.
+
+A green dot appears once a one-token reply comes back to your installation.
+
+## OpenAI-compatible endpoint
+
+Providers with an OpenAI-shaped `/chat/completions` endpoint work without a CodeOtter release. Pick **OpenAI-compatible** and fill in the base URL, model id and key:
+
+```txt
+Base URL:  https://your.provider.example.com/v1
+Model id:  your-model-name
+API key:   sk-...
+```
+
+Use this for self-hosted Ollama, vLLM, LiteLLM proxies, internal AI gateways, or any service that returns OpenAI-shaped JSON. Microsoft CodeReviewer is also reachable this way when you want diff-hunk comments alongside your System 1 model.
+
+## Pairing System 1 and System 2
+
+Each repository picks its two engines independently:
+
+- **System 2** is the BYOK provider above. It writes the review, walkthrough, findings and inline committable `suggestion` blocks.
+- **System 1** is the rubric engine. By default CodeOtter uses a local Laya Typed-Decisions model; you can also point it at any OpenAI-compatible endpoint (for example Kev 4B for high-confidence calibration).
+
+A common setup is Claude for System 2 with a local Laya sidecar for System 1. A pure-hosted setup pairs OpenAI for both, with no local dependencies.
+
+## Where keys live
+
+Keys are stored in the `pb_data` volume next to PocketBase auth. Keys set in `.env` at install time are used first; later edits in the UI override them per row. To rotate, paste a new key into the same row: the old key is replaced.
+
+## Verifying it works
+
+Open any onboarded repository and click **Run review**. The status panel shows *System 1 → provider/model* and *System 2 → provider/model*, with gauges and gates once the review completes. If System 2 returns a `401` or `429`, the provider error is shown verbatim and the System 1 output still scores the merge gates.

@@ -1,14 +1,19 @@
 import { createGetUrl } from 'fumadocs-core/source';
 
-export const appName = 'My App';
+export const appName = 'CodeOtter';
+export const siteUrl = 'https://docs.codeotter.io';
+export const websiteUrl = 'https://codeotter.io';
 export const docsRoute = '/docs';
 export const docsImageRoute = '/og/docs';
 export const docsContentRoute = '/llms.mdx/docs';
 
-// fill this with your actual GitHub info, for example:
+// The product repository (header GitHub link).
+export const productRepo = 'https://github.com/dharmeshgurnani/CodeOtter';
+
+// This docs repository ("Edit on GitHub" links).
 export const gitConfig = {
-  user: 'fuma-nama',
-  repo: 'fumadocs',
+  user: 'dharmeshgurnani',
+  repo: 'codeotter-docs',
   branch: 'main',
 };
 

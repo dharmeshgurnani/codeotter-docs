@@ -1,0 +1,34 @@
+---
+title: Accounts and roles
+description: Owner, admin and developer roles, invites, organization scoping and GitHub App setup.
+---
+
+## Roles
+
+| Role | Can |
+| :--- | :--- |
+| owner | Everything, including **Settings → Workspace → Manage accounts** |
+| admin | Everything except Manage accounts |
+| developer | Home, and for the repositories assigned to the account: reviews, open pull requests, review pages, (re-)running reviews and PR tools. No Settings or Admin pages |
+
+## Invites
+
+The first sign-in becomes the owner. Every later account needs an invite: **Settings → Workspace → Manage accounts → Invite** takes a username (or, for GitHub, an email), the provider (only providers with sign-in enabled), the role and, for developers, the repositories.
+
+- On first sign-in the account is matched by provider + username, or by the verified primary email PocketBase takes from GitHub. The invite's role and repositories are applied and the invite is used up.
+- Forgejo and Gitea invites match by username only.
+- A sign-in that matches no invite is refused ("Not invited: ask an owner for an invite") and its account is deleted.
+- Pending invites are rows marked **Pending** with a Remove button. A developer row's gear sets its repositories; owners and admins see all.
+
+Access is enforced server-side: a developer's board, home, organization switcher and triage list hold only assigned repositories, and any request naming another repository or pull request returns `403`. Background jobs (auto-review, triage, comment commands) are not affected.
+
+<Callout type="warn" title="Recovery and file-storage mode">
+  With `PR_SCORER_RECOVERY=1` an anonymous visitor is owner again. File-storage mode (no `PB_URL`) has no accounts:
+  the single operator is owner.
+</Callout>
+
+## Organizations and teams
+
+- **Organization scoping**: switch between teams and organizations from the header dropdown. Dashboards, open PR queues and settings stay isolated.
+- **One-click GitHub App setup**: under **Settings → System → Git providers**, click **Create app** on the GitHub row. One step creates the app, its sign-in credentials and repository discovery. Forgejo and Gitea rows create their OAuth app the same way through their API (the access token needs the `write:user` scope).
+- **Zero-restart configuration**: provider keys, local models and repository settings update live from the dashboard without restarting services.

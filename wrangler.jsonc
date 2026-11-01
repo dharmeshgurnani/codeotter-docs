@@ -1,0 +1,15 @@
+// Serves the static Next.js export (out/) as Workers static assets on
+// docs.codeotter.io. No Worker script or bindings: the site is static-only.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "codeotter-docs",
+  "compatibility_date": "2026-10-12",
+  "assets": {
+    "directory": "./out",
+    "not_found_handling": "404-page"
+  },
+  "routes": [{ "pattern": "docs.codeotter.io", "custom_domain": true }],
+  "observability": {
+    "enabled": true
+  }
+}

@@ -2,6 +2,15 @@
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
 
+/* CodeOtter brand orange (codeotter.io) as the accent colour. */
+:root {
+  --color-fd-primary: #c2410c;
+}
+
+.dark {
+  --color-fd-primary: #f97316;
+}
+
 html {
   scrollbar-gutter: stable;
 }

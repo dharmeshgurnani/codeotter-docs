@@ -1,13 +1,46 @@
 ---
-title: Hello World
-description: Your first document
+title: Introduction
+description: CodeOtter is the self-hosted AI pull request reviewer with calibrated scores, merge gates and a deterministic System 1 engine, free to self-host under AGPL-3.0.
 ---
 
-Welcome to the docs! You can start writing documents in `/content/docs`.
+**CodeOtter** is a free-to-self-host pull request review platform for engineering teams who want calibrated code intelligence without sending private code to a third-party SaaS or paying per seat.
 
-## What is Next?
+Every review produces:
+
+- **6 calibrated 0–100 gauges**: `Quality`, `Blast Radius`, `Risk`, `Tests`, `Readability` and `PR Hygiene`.
+- **9 binary merge gates**: `Title`, `Description`, `Security`, `Complexity`, `Tests`, `Docs`, `Scope`, `Guidelines` and `Issue Requirements`.
+- **A written review**: walkthrough, file cohorts and severity-ranked findings with committable `suggestion` fixes.
+
+Run it **100% offline** with open-weight Hugging Face models (`llama.cpp` and `ggmlc` sidecars), or connect your own key for Claude, OpenAI, MiniMax or OpenRouter.
+
+![CodeOtter dual engine](/images/dual-engine.jpg)
+
+## Start here
 
 <Cards>
-  <Card title="Learn more about Next.js" href="https://nextjs.org/docs" />
-  <Card title="Learn more about Fumadocs" href="https://fumadocs.dev" />
+  <Card title="Quickstart" href="/docs/quickstart" description="Run CodeOtter locally with Node 22 and pnpm." />
+  <Card title="Docker quickstart" href="/docs/docker-quickstart" description="One-click VPS install, Compose file and automatic updates." />
+  <Card title="BYOK provider config" href="/docs/byok-config" description="Connect Claude, OpenAI, MiniMax, OpenRouter or any OpenAI-compatible endpoint." />
+  <Card title="Local GGUF & sidecars" href="/docs/local-gguf-sidecar" description="Air-gapped reviews with local System 1 and System 2 models." />
 </Cards>
+
+## CodeOtter is right for your team if
+
+- You want **PR reviews without sending private code** to a third-party cloud.
+- You want **calibrated 0–100 scores and deterministic gates**, not hallucinated guesses.
+- You want to **enforce team conventions** (`AGENTS.md` / `CLAUDE.md`) automatically on every PR.
+- You want to run **100% offline on local hardware** (MacBook, Linux workstation, air-gapped GPU).
+- You want **zero per-seat billing**: self-hosting is free.
+- You want a **small deployment**: one Docker container or a Node process.
+
+## Supported models and providers
+
+Mix and match System 1 and System 2 engines freely:
+
+- **Hosted (BYOK)**: Claude Opus / Sonnet, OpenAI GPT-5, MiniMax-M3, OpenRouter, Cloudflare Clef, TypeSafe Jev.
+- **Local / open weights**: Qwen2.5-Coder (1.5B / 7B), DeepSeek-Coder / V3, Llama 3.1 / 3.3, Microsoft CodeReviewer, Laya Typed-Decisions, Kev 0.8B / 4B, Ollama.
+- **Anything else** that speaks the OpenAI API or ships as a GGUF.
+
+## License
+
+CodeOtter is open source under the [GNU AGPL-3.0](https://github.com/dharmeshgurnani/CodeOtter/blob/main/LICENSE). It is free to self-host, modify and redistribute; anyone who runs a modified version as a network service must publish their changes.

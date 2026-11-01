@@ -1,12 +1,21 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
-import { appName, gitConfig } from './shared';
+import { appName, productRepo, websiteUrl } from './shared';
 
 export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
-      // JSX supported
-      title: appName,
+      title: (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="" width={24} height={24} />
+          <span className="font-semibold">{appName} Docs</span>
+        </>
+      ),
     },
-    githubUrl: `https://github.com/${gitConfig.user}/${gitConfig.repo}`,
+    githubUrl: productRepo,
+    links: [
+      { text: 'Website', url: websiteUrl, external: true },
+      { text: 'Blog', url: `${websiteUrl}/blog/`, external: true },
+    ],
   };
 }

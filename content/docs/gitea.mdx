@@ -1,0 +1,40 @@
+---
+title: Gitea
+description: Review Gitea pull requests and sign in with Gitea, alongside GitHub and Forgejo.
+---
+
+GitHub, Forgejo and Gitea can all coexist. Each self-hosted provider supports one server origin; Forgejo and Gitea must have distinct origins, access tokens and OAuth applications. Gitea uses the same review adapter as [Forgejo](/docs/forgejo) with separate credentials and identities.
+
+<Steps>
+<Step>
+
+### Connect the server
+
+In **Settings → System → Git providers**, use the gear on the **Gitea** row to save the server origin and a repository access token, then select **Test**. Environment defaults are `GITEA_URL` and `GITEA_TOKEN`.
+
+Use `read:repository` and `read:issue` for reviews; add `read:user`, `write:repository` and `write:issue` to post comments and suggestions.
+
+</Step>
+<Step>
+
+### Enable Gitea sign-in (optional)
+
+Select **Create app** on the Gitea row (the access token needs the `write:user` scope), or create a Gitea OAuth2 application under **Settings → Applications** with the callback shown in CodeOtter's **Settings → System → Auth providers**. Turn on **Sign in with Gitea** and save its client ID and secret.
+
+PocketBase's Gitea provider uses PKCE and requests `read:user` and `user:email`; only a verified primary email is used for account linking.
+
+</Step>
+<Step>
+
+### Add repositories
+
+Add the full Gitea repository URL under **Settings → Manage repositories**, then select the organization marked **Gitea**. Internal IDs use `gitea~owner/name`; sign-in provider and repository access stay independent.
+
+</Step>
+</Steps>
+
+## Limitations
+
+- Validated against Gitea 1.24.6. Server URLs with subpaths are unsupported.
+- The same full-diff re-review and outside-diff analysis limits as Forgejo apply.
+- Changing a server origin is blocked while repositories, reviews, OAuth configuration or saved OAuth identities depend on it.

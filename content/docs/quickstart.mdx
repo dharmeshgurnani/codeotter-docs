@@ -1,0 +1,74 @@
+---
+title: Quickstart
+description: Run CodeOtter locally with Node 22 and pnpm, then review your first pull request.
+---
+
+You need **Node 22 or later** and **pnpm**. For GitHub repositories, authenticate the **GitHub CLI** (`gh auth status`). Forgejo and Gitea use their REST APIs and do not need `gh`.
+
+<Steps>
+<Step>
+
+### Clone the repository
+
+```bash
+git clone https://github.com/dharmeshgurnani/CodeOtter.git
+cd CodeOtter
+```
+
+</Step>
+<Step>
+
+### Start CodeOtter
+
+<Tabs items={['Development', 'Production', 'Production + PocketBase']}>
+<Tab value="Development">
+
+```bash
+pnpm dev
+```
+
+Starts the backend, PocketBase and the Vite dev server with HMR. Open `http://localhost:5173` (proxied to `:4747`).
+
+</Tab>
+<Tab value="Production">
+
+```bash
+pnpm start
+```
+
+Builds the frontend if needed and serves CodeOtter on `http://localhost:4747`.
+
+</Tab>
+<Tab value="Production + PocketBase">
+
+```bash
+pnpm co:start
+```
+
+Production mode with PocketBase started by `bin/start.sh`. This is what the Docker image runs.
+
+</Tab>
+</Tabs>
+
+</Step>
+<Step>
+
+### Review a pull request
+
+1. Paste a GitHub, Forgejo or Gitea PR URL, or pick one of your repositories in the sidebar.
+2. Choose a provider under **Settings → System → Model provider** (see [BYOK provider config](/docs/byok-config)), or download an offline model under **Settings → System → Local models** (see [Local GGUF & sidecars](/docs/local-gguf-sidecar)).
+3. Get a calibrated review in seconds, or query `/api/score?pr=<url|number>` for JSON.
+
+</Step>
+</Steps>
+
+<Callout title="Zero-config storage">
+  PocketBase is detected and started locally for authentication and persistent storage. To customise superuser
+  credentials or model keys, create a `.env` file from `.env.example`.
+</Callout>
+
+## Next steps
+
+- Deploy for your team with [Docker](/docs/docker-quickstart).
+- Connect [Forgejo](/docs/forgejo) or [Gitea](/docs/gitea) next to GitHub.
+- Review from your terminal with the [CLI](/docs/cli).

@@ -1,0 +1,27 @@
+{
+  "title": "CodeOtter",
+  "pages": [
+    "---Getting started---",
+    "index",
+    "quickstart",
+    "---Deploy---",
+    "docker-quickstart",
+    "accounts-and-roles",
+    "---Models---",
+    "byok-config",
+    "local-gguf-sidecar",
+    "---Git providers---",
+    "forgejo",
+    "gitea",
+    "---Reviews---",
+    "dual-engine",
+    "review-features",
+    "repository-guidelines",
+    "ci-triage",
+    "---Tools---",
+    "cli",
+    "---Reference---",
+    "security",
+    "development"
+  ]
+}

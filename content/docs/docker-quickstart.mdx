@@ -1,0 +1,103 @@
+---
+title: Docker quickstart
+description: Deploy CodeOtter with Docker. One-click VPS install, the Compose file, required environment variables, automatic updates and rollback.
+---
+
+A production-ready Docker image packages the whole platform: persistent storage, team auth and model runners. Run it anywhere that runs a container: Docker Compose on a VPS, Railway, Fly.io, Render, Coolify or bare-metal Linux.
+
+<Callout title="TL;DR">
+  Copy `.env.example` to `.env`, set a GitHub token, run `docker compose up -d`, and sign in as the first account
+  to claim the owner role. Watchtower pulls new images hourly and restarts only the `codeotter` container.
+</Callout>
+
+## One-click deploy
+
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fdharmeshgurnani%2FCodeOtter%2Fmain%2Fbin%2Fdeploy%2Fazure.json)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/dharmeshgurnani/CodeOtter)
+
+On any Linux VPS (DigitalOcean, Hetzner, Vultr, Linode, EC2 or your own hardware), as root:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/dharmeshgurnani/CodeOtter/main/bin/install.sh | bash
+# With HTTPS: point a DNS A record at the server first
+curl -fsSL https://raw.githubusercontent.com/dharmeshgurnani/CodeOtter/main/bin/install.sh | CODEOTTER_DOMAIN=review.example.com bash
+```
+
+The script installs Docker, writes `/opt/codeotter/.env` with a generated PocketBase password, and starts CodeOtter with Watchtower updates. With `CODEOTTER_DOMAIN` it also runs [Caddy](https://caddyserver.com) with a Let's Encrypt certificate and keeps ports `4747` and `8090` on loopback. Re-running it keeps `.env`. The same line works as cloud-init user data when you create the server.
+
+- **Azure** creates an Ubuntu VM with HTTPS on `https://<label>.<region>.cloudapp.azure.com`. Only an SSH public key is required.
+- **Render** needs a paid instance type, because only paid instances keep a disk. Render does not follow `:latest`, so redeploy to update.
+- Sign in right after deploying: the first account becomes the owner.
+
+## The Compose file
+
+`docker-compose.yml` ships in the repository root. Two services share the `pb_data` named volume where PocketBase stores auth and persistent state:
+
+```yaml title="docker-compose.yml"
+services:
+  codeotter:
+    image: ghcr.io/dharmeshgurnani/codeotter:latest
+    ports:
+      - "4747:4747"
+      - "127.0.0.1:8090:8090"
+    env_file: .env
+    volumes:
+      - pb_data:/app/pb_data
+    restart: unless-stopped
+
+  watchtower:
+    image: nickfedor/watchtower:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      WATCHTOWER_LABEL_ENABLE: "true"
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_POLL_INTERVAL: "3600"
+    restart: unless-stopped
+
+volumes:
+  pb_data:
+```
+
+```bash
+cp .env.example .env       # Set GH_TOKEN and optional model keys
+docker compose up -d       # Dashboard on http://localhost:4747
+```
+
+## Environment variables
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `GH_TOKEN` | For GitHub | Personal access token with `repo`, `read:org` and `read:user` (or fine-grained contents:read + pull_requests:read on the reviewed repositories). Authenticates `gh` inside the container. A token saved under **Settings → System → Git providers → GitHub** takes precedence. |
+| `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `OPENROUTER_API_KEY` | No | Hosted System 2 models. Not needed with local GGUF sidecars. See [BYOK provider config](/docs/byok-config). |
+| `FORGEJO_URL`, `FORGEJO_TOKEN` | No | Enable the [Forgejo](/docs/forgejo) integration. |
+| `GITEA_URL`, `GITEA_TOKEN` | No | Enable the [Gitea](/docs/gitea) integration. |
+| `CODEOTTER_UPDATE_CHECK` | No | Set to `0` to stop checking GitHub Releases for new versions. |
+| `PR_SCORER_RECOVERY` | No | Set to `1` to make anonymous visitors owner again (account recovery). |
+
+## Updates and rollback
+
+Every release tag publishes `ghcr.io/dharmeshgurnani/codeotter` as `:latest`, `:X.Y.Z` and `:X.Y`, for `amd64` and `arm64`. [Watchtower](https://github.com/nicholas-fedor/watchtower) checks hourly, pulls a newer image and restarts only containers labelled `com.centurylinklabs.watchtower.enable=true`. `pb_data` keeps its contents and PocketBase applies new migrations on start.
+
+- **Hold back**: pin `image: ghcr.io/dharmeshgurnani/codeotter:0.6` (patch releases only) or `:0.6.0` (frozen).
+- **Roll back**: set `image:` to the tag you want and run `docker compose up -d`. PocketBase migrates forward only; the volume is untouched.
+- **Update by hand**: delete the `watchtower` service, then run `docker compose pull && docker compose up -d`.
+- Owners see **vX.Y.Z available** in the sidebar when a newer release exists (checked every 6 hours).
+
+## Build and run standalone
+
+```bash
+docker build -t codeotter .
+docker run -d -p 4747:4747 -p 8090:8090 --env-file .env -v codeotter-data:/app/pb_data codeotter
+```
+
+Mount `/app/pb_data` as a volume to keep reviews, settings and downloaded local models across upgrades.
+
+## After deploy
+
+Open `http://<host>:4747` and sign in. The first account becomes the owner; invite everyone else from **Settings → Workspace → Manage accounts**. See [Accounts and roles](/docs/accounts-and-roles).
+
+<Callout type="info">
+  CodeOtter is licensed under AGPL-3.0: deploying the Docker image needs no paid seat, and modifications you offer
+  as a network service must publish their source under the same license.
+</Callout>

@@ -1,0 +1,14 @@
+---
+title: Repository guidelines (AGENTS.md / CLAUDE.md)
+description: CodeOtter detects AGENTS.md and CLAUDE.md in each repository and enforces them at the merge gate.
+---
+
+![Spot-checking AI agents at the merge gate](/images/merge-gate-agents.jpg)
+
+Every repository onboarded in CodeOtter is checked at its root, through its forge API, for `AGENTS.md` and `CLAUDE.md`.
+
+- **Zero configuration**: when either file (or both) exists, its guidelines are added to the review context.
+- **Enforced at the merge gate**: violations of architecture conventions, file structure or coding guidelines fail the `Repository guidelines` gate.
+- **Per-repository control**: turn guideline enforcement on or off per repository with **Repository settings → Review guidelines**.
+
+Guidelines apply to reviews, PR tools and the [CLI](/docs/cli). Combine them with [team learnings](/docs/review-features#team-learnings-and-accepted-fixes) to capture rules that are not written down yet.

@@ -1,0 +1,53 @@
+---
+title: Review features
+description: Smart context, large-PR handling, self-check, PR tools, comment commands, team learnings, delta reviews and posting results to your pull requests.
+---
+
+## The review dashboard
+
+The review page is a side-by-side 30/70 layout: calibrated **0–100 gauges** on the left; on the right, the streaming **Markdown review**, an **architecture and blast-radius Mermaid diagram** (rendered offline, with a raw-source toggle), cohort file walkthroughs and severity-ranked findings. Re-run scores or the written review independently with one click.
+
+## Context the models see
+
+- **Smart context (outside-diff impact)**: CodeOtter extracts the functions, methods and classes a diff modifies and scans files outside the diff for their callers and importers, so a change cannot silently break an unmodified call site.
+- **Dynamic context**: each code hunk is extended upward to its enclosing function, method or class, read from the PR head (JS/TS, Python, Go, Rust, Java/C#, Kotlin, Swift, Ruby, PHP), and trailing context is cut to one line. Setting: **Repository settings → Review → Context above a change** (Off, 8, 16 default, 32 lines).
+- **Large pull requests**: a diff over the budget is not cut at a character count. Files in the main language go first, then other code, then docs and config, then lockfiles and generated output. A file too big to fit shows its leading hunks (at most half the budget), hunks that only delete lines are dropped, and every file left out is still named with its line counts.
+
+## Self-check
+
+After a language model review, a second pass of the same model scores each finding 0–10 against the diff (wrong or unsupported, plausible, certain defect; a wrong suggested fix lowers the score). Findings below the minimum are dropped and the rest are ordered by score, which is shown on each finding. Setting: **Repository settings → Review → Self-check** (Off, 3, 5 default, 7).
+
+## PR tools
+
+The **Tools** card under the review runs these with the same context, diff budget and guidelines as reviews:
+
+| Tool | What it does |
+| --- | --- |
+| **Describe** | Title, type, summary bullets and a per-file change table. Post it as a comment or apply it to the PR description: CodeOtter's block is replaced on each run and the author's text is kept. |
+| **Ask** | Answers a question about the PR from its diff, naming files and lines, and says what is missing rather than guessing. |
+| **Improve** | Ranked code suggestions, each replacing a line range and labelled (possible issue, security, performance…), filtered by the self-check, posted as committable inline suggestions (multi-line on GitHub). |
+| **Docs** | Doc comments for new or changed functions and classes in the language's convention, as committable suggestions. |
+| **Changelog** | An entry in the format of the repository's own `CHANGELOG.md`, `CHANGES.md` or `HISTORY.md`. CodeOtter never commits to the PR branch. |
+
+## PR comment commands
+
+Off by default (**Repository settings → Review → PR comment commands**). A comment whose first line is `/review`, `/describe`, `/improve`, `/ask <question>`, `/docs` or `/changelog` runs that action within a minute and replies on the pull request. Only owners, members and collaborators can trigger one (GitHub `author_association`; Forgejo and Gitea write permission), because anyone can comment on a public repository and spend its model budget.
+
+## Suggested fixes
+
+Findings carry line-level `:L<line>` anchors and exact `suggestion` replacements, shown as **Suggested Fix** cards with **Copy fix** and **Post inline suggestion to GitHub** (`POST /api/review-suggestions`). Authors can then click **Commit suggestion** on GitHub. Forgejo and Gitea review comments cover one line, so they show the replacement as a code block.
+
+## Team learnings and accepted fixes
+
+- **Dismiss & remember rule**: dismissing a finding stores a repository learning that is added to future language model and System 1 prompts.
+- **Accepted fixes**: when a re-review finds that the author applied an earlier CodeOtter suggestion, the fix is remembered, and later reviews look for the same kinds of problems. The 10 most recent are included in reviews; the list (up to 30) is editable.
+
+Both are managed under **Settings → Manage repositories → ⚙️**.
+
+## Incremental delta reviews
+
+Re-reviewing a pull request runs an incremental, commit-by-commit review (`prevSha → headSha`) of the new commits and tracks which earlier findings were resolved.
+
+## Posting to the pull request
+
+Enable **Post scores on PR**, **Add PR review as a comment** and **Post inline suggestions** to publish scorecards, review summaries and committable fixes. Comments are **updated in place** on each run instead of piling up.
