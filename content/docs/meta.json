@@ -13,6 +13,7 @@
     "---Git providers---",
     "forgejo",
     "gitea",
+    "github-action",
     "---Reviews---",
     "dual-engine",
     "review-features",

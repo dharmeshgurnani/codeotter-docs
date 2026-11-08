@@ -1,0 +1,62 @@
+---
+title: GitHub Action
+description: Review pull requests from a workflow with the CodeOtter Review action. No GitHub App install, no relay; the runner talks to your own server.
+---
+
+[CodeOtter Review](https://github.com/marketplace/actions/codeotter-review) sends a repository's `pull_request` and `issue_comment` events to your CodeOtter server, signed HMAC-SHA256 like a GitHub webhook. The server checks the signature, re-reads the pull request from GitHub and reviews it through its queue, exactly as for an App delivery.
+
+Use it when you cannot or do not want to register a GitHub App webhook on your instance. CodeOtter still needs GitHub access to read the pull request and post the review (GitHub App or access token, under **Settings → System → Git providers**).
+
+## Setup
+
+1. Open **Settings → System → Git providers**, the GitHub row's gear, and copy **Action secret**.
+2. Add it to the repository or organization as the secret `CODEOTTER_SECRET`.
+3. Add `codeotter.yml` at the repository root, on the default branch:
+
+   ```yaml title="codeotter.yml"
+   url: https://codeotter.example.com
+   ```
+
+4. Add the workflow:
+
+   ```yaml title=".github/workflows/codeotter.yml"
+   name: CodeOtter
+   on:
+     pull_request_target:
+       types: [opened, synchronize, reopened, ready_for_review]
+     issue_comment:
+       types: [created]
+   permissions:
+     contents: read
+   jobs:
+     review:
+       if: github.event_name != 'issue_comment' || github.event.issue.pull_request
+       runs-on: ubuntu-latest
+       steps:
+         - uses: dharmeshgurnani/codeotter-action@v1
+           with:
+             secret: ${{ secrets.CODEOTTER_SECRET }}
+   ```
+
+The repository must be onboarded with auto review on. Comment commands need commands turned on for the repository.
+
+## Inputs
+
+| Input | Default | |
+| --- | --- | --- |
+| `secret` | required | Action secret |
+| `url` | `url` in `codeotter.yml` | Server URL; overrides the file |
+| `token` | `github.token` | Reads `codeotter.yml` |
+
+## Security
+
+- `pull_request_target` gives fork pull requests the secret. The action never checks out or runs pull request code.
+- `codeotter.yml` is read from the default branch, so a pull request cannot point the delivery at another server.
+- Only the signature is sent, never the secret. Redirects are not followed.
+- The server must be reachable from the runner: public for GitHub-hosted runners, or use a self-hosted runner.
+
+| Job error | Fix |
+| --- | --- |
+| `rejected the signature` | `CODEOTTER_SECRET` does not match the Action secret |
+| `answered 503` | The instance has no GitHub secrets yet; open Git providers once |
+| `unreachable` | The runner cannot reach the server URL |
