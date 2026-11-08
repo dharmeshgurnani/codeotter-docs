@@ -3,7 +3,7 @@ title: CLI, TUI & MCP server
 description: The codeotter command line, interactive terminal UI, CI merge blocker and Model Context Protocol server.
 ---
 
-CodeOtter has one CLI with an interactive terminal UI and scriptable review, CI, JSON and MCP modes. It needs Node 22 or later.
+CodeOtter has one CLI with an interactive terminal UI and scriptable review, CI, JSON and MCP modes. It needs Node 22.18 or later.
 
 ```bash
 pnpm install --frozen-lockfile
@@ -16,32 +16,32 @@ With no arguments in an interactive terminal, `codeotter` opens the TUI. `codeot
 
 ```bash
 # Browse connected repositories using the shared local backend
-node tui/codeotter.mjs tui
+node tui/codeotter.ts tui
 
 # Print a one-shot review with color gauges and walkthrough
-node tui/codeotter.mjs review
+node tui/codeotter.ts review
 
 # Review staged changes before git commit
-node tui/codeotter.mjs --staged
+node tui/codeotter.ts --staged
 
 # Review a PR and post the scorecard comment
-node tui/codeotter.mjs pr 42 --post-comment
+node tui/codeotter.ts pr 42 --post-comment
 
 # Run in CI as a merge blocker
-node tui/codeotter.mjs ci --fail-on-gate --min-score 60
+node tui/codeotter.ts ci --fail-on-gate --min-score 60
 
 # Limit a review to some paths
-node tui/codeotter.mjs review --files src/cart.js,src/tax.js
+node tui/codeotter.ts review --files src/cart.js,src/tax.js
 
 # Run the Model Context Protocol server for Cursor, Claude Desktop and IDEs
-node tui/codeotter.mjs mcp
+node tui/codeotter.ts mcp
 ```
 
 `ci` exits with code `1` when a gate fails or the score is below `--min-score`, and `2` on a bad flag or unknown command.
 
 ## Same engines as the web app
 
-- `review`, `pr`, `ci` and the MCP server run the installation's configured language and System One models through `core/server.mjs`. A configured System One model owns every score and gate; `--provider` / `--model` override the language model only. Findings go through the same [self-check](/docs/review-features#self-check).
+- `review`, `pr`, `ci` and the MCP server run the installation's configured language and System One models through `core/server.ts`. A configured System One model owns every score and gate; `--provider` / `--model` override the language model only. Findings go through the same [self-check](/docs/review-features#self-check).
 - **Smart context** scans for outside callers and checks cross-file contract safety.
 - **Pre-merge gates** (title, description, security, complexity, tests, documentation, scope and [repository guidelines](/docs/repository-guidelines)) are answered by the System One model, and are absent without one.
 - Works offline with local `llama.cpp` / Ollama, or with hosted keys (Claude, OpenAI, MiniMax, OpenRouter).
@@ -50,7 +50,7 @@ node tui/codeotter.mjs mcp
 
 The default TUI groups connected repositories under expandable organizations. Selecting a repository scopes its PRs; moving between PRs updates scores, summary and full details immediately. Saved reviews appear at once, and missing reviews are calculated one by one with the web app's configured engines. The TUI does not publish comments or suggestions.
 
-**No running web server is needed.** The TUI imports shared services from `core/server.mjs` without binding a port, building the frontend or starting scheduled automation. Forge APIs and hosted models still need network access. PocketBase is managed automatically where configured.
+**No running web server is needed.** The TUI imports shared services from `core/server.ts` without binding a port, building the frontend or starting scheduled automation. Forge APIs and hosted models still need network access. PocketBase is managed automatically where configured.
 
 | Key | Action |
 | --- | --- |
@@ -69,7 +69,7 @@ Use `codeotter tui --local` for staged, unstaged, base or patch review, Ask, des
 
 | Setting | Effect |
 | --- | --- |
-| `CODEOTTER_HOME` | Use an existing installation's `.env`, `config.json`, `scores/`, `.pb`, `pb_data` and `.local`. Defaults to the repository that holds `core/server.mjs`. |
+| `CODEOTTER_HOME` | Use an existing installation's `.env`, `config.json`, `scores/`, `.pb`, `pb_data` and `.local`. Defaults to the repository that holds `core/server.ts`. |
 | `PB_URL`, `PR_SCORER_DATA` | Take precedence over `CODEOTTER_HOME`. |
 | `CODEOTTER_DELTA` | Path to [Delta](https://github.com/dandavison/delta) for the **Changes** tab (syntax highlighting, line numbers, wrapping). Install it with `winget install dandavison.delta` or `brew install git-delta`. Nothing downloads automatically. |
 | `CODEOTTER_IMAGE=off` | Disable the SIXEL logo in the header. |

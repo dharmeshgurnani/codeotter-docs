@@ -5,7 +5,7 @@ description: Run CodeOtter from source and run the Forgejo and Gitea integration
 
 ## Running from source
 
-See the [Quickstart](/docs/quickstart) for `pnpm dev`, `pnpm start` and `pnpm co:start`. Contribution guidelines live in [`CONTRIBUTING.md`](https://github.com/dharmeshgurnani/CodeOtter/blob/main/CONTRIBUTING.md).
+See the [Quickstart](/docs/quickstart) for `pnpm dev`, `pnpm start` and `pnpm co:start`. The backend, CLI and tests are TypeScript run directly by Node (no build step); `pnpm typecheck` is the strict type check, and `pnpm test` runs it first. Contribution guidelines live in [`CONTRIBUTING.md`](https://github.com/dharmeshgurnani/CodeOtter/blob/main/CONTRIBUTING.md).
 
 ## Integration tests
 
@@ -14,7 +14,7 @@ pnpm -C web build
 pnpm test:forgejo
 pnpm test:gitea
 # Keep a disposable installation running for browser QA:
-node test/integration/forges.test.mjs --gitea --serve
+node test/integration/forges.test.ts --gitea --serve
 ```
 
 The suite needs Docker and `.pb/pocketbase` (`.pb/pocketbase.exe` on Windows), or `TEST_PB_BIN`. It starts Forgejo 15, Gitea 1.24.6 and PocketBase with disposable data, uses a deterministic local model, and never writes to the running CodeOtter installation.
