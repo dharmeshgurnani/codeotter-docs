@@ -31,7 +31,7 @@ The **Tools** card under the review runs these with the same context, diff budge
 
 ## PR comment commands
 
-Off by default (**Repository settings → Review → PR comment commands**). A comment whose first line is `/review`, `/describe`, `/improve`, `/ask <question>`, `/docs` or `/changelog` runs that action within a minute and replies on the pull request. Only owners, members and collaborators can trigger one (GitHub `author_association`; Forgejo and Gitea write permission), because anyone can comment on a public repository and spend its model budget.
+On by default (**Repository settings → Review → PR comment commands**). A comment whose first line is `/review`, `/describe`, `/improve`, `/ask <question>`, `/docs` or `/changelog` runs that action within a minute and replies on the pull request. Only owners, members and collaborators can trigger one (GitHub `author_association`; Forgejo and Gitea write permission), because anyone can comment on a public repository and spend its model budget.
 
 ## Suggested fixes
 
@@ -50,4 +50,4 @@ Re-reviewing a pull request runs an incremental, commit-by-commit review (`prevS
 
 ## Posting to the pull request
 
-Enable **Post scores on PR**, **Add PR review as a comment** and **Post inline suggestions** to publish scorecards, review summaries and committable fixes. Comments are **updated in place** on each run instead of piling up.
+**Post scores on PR**, **Add PR review as a comment** and **Post inline suggestions** are on by default and publish scorecards, review summaries and committable fixes. Comments are **updated in place** on each run instead of piling up.
