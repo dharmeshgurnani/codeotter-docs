@@ -12,7 +12,7 @@ CodeOtter's System One model rates every new or updated pull request (correctnes
 | `failure` | Risk at or above the threshold: stop and look at the change |
 | `error` | System One failed (model not loaded, runtime error). The reason is in the status description |
 
-Turn it on under **Admin → Model provider → Fast triage** (Automatic, Fail status at risk). CodeOtter polls onboarded repositories every two minutes, so it needs no inbound webhook and works on a local install. With **Post scores on PR** enabled for the repository, the same result is also posted as a PR comment that updates on each push. `POST /api/triage?pr=` runs one on demand.
+Turn it on under **Admin → Model provider → Fast triage** (Automatic, Fail status at risk). CodeOtter polls onboarded repositories every two minutes, so it needs no inbound webhook and works on a local install. With **Post scores on PR** on for the repository (the default), the same result is also posted as a PR comment that updates on each push. `POST /api/triage?pr=` runs one on demand.
 
 <Callout type="info">
   New GitHub App installs request `statuses: write` so CodeOtter can set the commit status.
