@@ -23,8 +23,9 @@ The first sign-in becomes the owner. Every later account needs an invite: **Sett
 Access is enforced server-side: a developer's board, home, organization switcher and triage list hold only assigned repositories, and any request naming another repository or pull request returns `403`. Background jobs (auto-review, triage, comment commands) are not affected.
 
 <Callout type="warn" title="Recovery and file-storage mode">
-  With `PR_SCORER_RECOVERY=1` an anonymous visitor is owner again. File-storage mode (no `PB_URL`) has no accounts:
-  the single operator is owner.
+  If you are locked out, restart with `PR_SCORER_RECOVERY=1`, fix the sign-in, then unset it: while it is set, anyone
+  who reaches the port without signing in is treated as owner. File-storage mode (no `PB_URL`) has no accounts: the
+  single operator is owner.
 </Callout>
 
 ## Organizations and teams

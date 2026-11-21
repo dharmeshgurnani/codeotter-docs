@@ -43,6 +43,8 @@ services:
     env_file: .env
     volumes:
       - pb_data:/app/pb_data
+    labels:
+      - com.centurylinklabs.watchtower.enable=true
     restart: unless-stopped
 
   watchtower:
@@ -68,12 +70,12 @@ docker compose up -d       # Dashboard on http://localhost:4747
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
-| `GH_TOKEN` | For GitHub | Personal access token with `repo`, `read:org` and `read:user` (or fine-grained contents:read + pull_requests:read on the reviewed repositories). Authenticates `gh` inside the container. A token saved under **Settings → System → Git providers → GitHub** takes precedence. |
+| `GH_TOKEN` | For GitHub | A token with repo read access. Authenticates `gh` inside the container. A token saved under **Settings → System → Git providers → GitHub** takes precedence. Posting comments or commit statuses back to a pull request needs a token with write access to that repository. |
 | `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `OPENROUTER_API_KEY` | No | Hosted System 2 models. Not needed with local GGUF sidecars. See [BYOK provider config](/docs/byok-config). |
 | `FORGEJO_URL`, `FORGEJO_TOKEN` | No | Enable the [Forgejo](/docs/forgejo) integration. |
 | `GITEA_URL`, `GITEA_TOKEN` | No | Enable the [Gitea](/docs/gitea) integration. |
 | `CODEOTTER_UPDATE_CHECK` | No | Set to `0` to stop checking GitHub Releases for new versions. |
-| `PR_SCORER_RECOVERY` | No | Set to `1` to make anonymous visitors owner again (account recovery). |
+| `PR_SCORER_RECOVERY` | No | If you are locked out, restart with `PR_SCORER_RECOVERY=1`, fix the sign-in, then unset it: while it is set, anyone who reaches the port without signing in is treated as owner. |
 
 ## Updates and rollback
 
