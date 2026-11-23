@@ -32,3 +32,7 @@ export function getPageImageUrl(page: { slugs: string[]; locale?: string }) {
 
   return { segments, url: getImageUrl(segments, page.locale) };
 }
+
+export function getPageUrl(page: { url: string }) {
+  return `${siteUrl}${page.url}`;
+}
