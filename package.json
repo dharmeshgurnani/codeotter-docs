@@ -9,6 +9,7 @@
     "deploy": "wrangler deploy",
     "preview": "wrangler dev",
     "types:check": "next typegen && tsc --noEmit",
+    "check:seo": "node scripts/check-seo.mjs",
     "lint": "eslint"
   },
   "dependencies": {

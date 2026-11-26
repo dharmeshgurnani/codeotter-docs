@@ -18,3 +18,5 @@ jobs:
       - run: npm run lint
       - run: npm run types:check
       - run: npm run build
+      - name: Check SEO markup
+        run: npm run check:seo
